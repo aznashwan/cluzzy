@@ -8,6 +8,7 @@ module Config (
         Config,
         config,
         get,
+        insert,
         fromKVList,
         confFor
         ) where
@@ -16,7 +17,6 @@ module Config (
 import           CLaSH.Prelude
 
 import           Control.Monad.Reader
-import           Data.Default
 import qualified Data.Map             as M
 import           Data.Maybe           (fromMaybe)
 
@@ -24,10 +24,17 @@ import           Data.Maybe           (fromMaybe)
 -- | A Config is just a synonym for a Map String Int
 type Config = M.Map String Int
 
--- !!! THIS IS THE DEFINITION OF THE DEFAULT 'Config' !!! ---
+-- !!! THIS IS THE DEFINITION OF THE DEFAULT 'Config' !!! --
+config :: Config
 config = fromKVList [
     ("totalSpace", 100),
-    ("fuzzificationDelta", 25)
+    ("distanceInputDelta", 15),
+    ("speedInputDelta", 20),
+    ("ruleSpacing", 20),
+    ("conclusionSpacing", 15),
+    ("conclusionDelta", 10),
+    ("distanceRuleDelta", 15),
+    ("speedRuleDelta", 10)
     ]
 
 instance {-# OVERLAPS #-} Default Config where
@@ -40,6 +47,10 @@ get k = fromMaybe 0 . M.lookup k
 -- | fromKVList wraps Data.Map.fromList.
 fromKVList :: [(String, Int)] -> Config
 fromKVList = M.fromList
+
+-- | 'insert' wraps Data.Map.insert.
+insert :: String -> Int -> Config -> Config
+insert = M.insert
 
 -- | confFor is a convenience method for asking for the given
 -- Config key in a Reader.

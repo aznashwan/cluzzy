@@ -1,10 +1,16 @@
 {-# OPTIONS_HADDOCK prune, show-extensions #-}
+{-# LANGUAGE Trustworthy #-}
 
 -- | This module defines the fuzzy set implementation which will be used within
 -- the project, as well as some basic operations on them.
 module FuzzySet where
 
-import qualified Data.List as L
+import           CLaSH.Prelude
+
+import           Control.Monad.Reader
+import qualified Data.List            as L
+
+import           Config               (Config, confFor)
 
 
 -- | A 'FuzzySet' is the data type we'll be using to represent fuzzy sets.
@@ -15,11 +21,27 @@ import qualified Data.List as L
 -- rich <https://goo.gl/qR24GH datakinds> provided by CλaSH.
 type FuzzySet = [Int]
 
+-- zeroFuzzySet returns the zero FuzzySet of the given range.
+zeroFuzzySet :: Int -> FuzzySet
+zeroFuzzySet n = L.replicate n 0
 
--- | 'union' returns the union of two 'FuzzySet's.
-union :: FuzzySet -> FuzzySet -> FuzzySet
-union = zipWith max
+-- | 'unionT' is the function representing the combinational behaviour
+-- of a circuit which perform a union of 'FuzzySet's.
+unionT :: FuzzySet -> FuzzySet -> FuzzySet
+unionT = L.zipWith max
 
--- | 'intersect' returns the intersection of two 'FuzzySets's.
-intersect :: FuzzySet -> FuzzySet -> FuzzySet
-intersect = zipWith min
+-- | 'union' is the sequential circuit modelling of a 'FuzzySet' unifier.
+union :: Reader Config (Signal (FuzzySet, FuzzySet) -> Signal FuzzySet)
+union = do
+    total <- confFor "totalSpace"
+    return $ moore (\_ (i,j) -> unionT i j) id (zeroFuzzySet total)
+
+-- | 'intersectT' returns the intersection of two 'FuzzySet's.
+intersectT :: FuzzySet -> FuzzySet -> FuzzySet
+intersectT = L.zipWith min
+
+-- | 'intersect' is the sequential circuit modelling a 'FuzzySet' intersector.
+intersect :: Reader Config (Signal (FuzzySet, FuzzySet) -> Signal FuzzySet)
+intersect = do
+    total <- confFor "totalSpace"
+    return $ moore (\_ (i, j) -> intersectT i j) id (zeroFuzzySet total)

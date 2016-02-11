@@ -20,7 +20,7 @@
 -- mostly permits the writing of the combinational design and the automatic
 -- remodelling as a sequential one by the library's functions. This will be our
 -- favored approach, as we shall see shortly.
-module Fuzzifier where
+module Fuzzifier (fuzzifierT, fuzzifier, testFuzzifierT, testFuzzifierTPrint) where
 
 
 import           CLaSH.Prelude
@@ -28,7 +28,7 @@ import           CLaSH.Prelude
 import           Control.Monad.Reader
 import qualified Data.List            as L
 
-import           Config               (Config, confFor, fromKVList, get)
+import           Config               (Config, confFor, fromKVList)
 import           FuzzySet             (FuzzySet)
 
 
@@ -66,9 +66,9 @@ fuzzifierT = do
 
     return $ \n -> let bet l h x = (x > l) && (x < h)
                        f m = if not $ bet (n - delta) (n + delta) m
-                             then 0
-                             else 100 - floor (100 * fromIntegral (abs (n - m)) / fromIntegral delta)
-                   in L.map f [1..total]
+                             then if m == n then n else 0
+                             else 100 - floor (100 * (fromIntegral (abs (n - m)) / fromIntegral delta) :: Double)
+                   in L.map f [0..total-1]
 
 
 -- | Now, in order to obtain a sequential cirtcuit modeling the behavior of our
@@ -122,7 +122,6 @@ fuzzifierT = do
 -- documentation.
 fuzzifier :: Reader Config (Signal Int -> Signal FuzzySet)
 fuzzifier = do
-    c <- ask
     total <- confFor "totalSpace"
     f <- fuzzifierT
     return $ moore (\_ i -> f i) id (L.replicate total 0)
@@ -142,5 +141,5 @@ testFuzzifierT r d = runReader fuzzifierT conf
 -- | testFuzzifierTPrint is the equivalent of the above; but returns an IO action
 -- which pretty prints the resulting fuzzy set (presuming it's indexed from 0).
 testFuzzifierTPrint :: Int -> Int -> Int -> IO ()
-testFuzzifierTPrint r d n = prettyp r $ testFuzzifierT r d n
-    where prettyp nr l = forM_ [0..r-1] $ \nrc -> putStrLn $ show (nrc + 1) L.++ "\t::\t" L.++ show (l L.!! nrc)
+testFuzzifierTPrint r d n = prettyp $ testFuzzifierT r d n
+    where prettyp l = forM_ [0..r-1] $ \nrc -> putStrLn $ show (nrc + 1) L.++ "\t::\t" L.++ show (l L.!! nrc)
