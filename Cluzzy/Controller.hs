@@ -5,7 +5,7 @@ import           CLaSH.Prelude        (Signal, moore)
 
 import           Control.Monad.Reader (Reader, local)
 
-import           Config               (Config, confFor, config, insert)
+import           Config               (Config, confFor, insert)
 import           Defuzzifier          (defuzzifierT)
 import           Fuzzifier            (fuzzifierT)
 import           FuzzySet
@@ -15,10 +15,7 @@ import           Rules
 -- | 'controllerT' is the function representing the combinational modelling of
 -- the FLC. It relies on the "totalSpace", "ruleSpacing", "speedFuzzificationDelta",
 -- "distanceFuzzificationDelta" "distanceRuleDelta" and " speedRuleDelta" config keys.
-controllerT :: Reader Config (Int -> -- ^ Distance (0..99  km)
-                              Int -> -- ^ Speed    (0..99 km/h)
-                              Action -- ^ The Action which should be taken.
-                              )
+controllerT :: Reader Config (Int -> Int -> Action)
 controllerT = do
     total <- confFor "totalSpace"
 

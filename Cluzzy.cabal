@@ -18,7 +18,8 @@ cabal-version:       >=1.10
 extra-source-files:  README.md
 library
   exposed-modules:     Fuzzifier, Config, Testbenches.FuzzifierTestbench,
-                       Testbenches, Rules, FuzzySet, Controller, Defuzzifier
+                       Testbenches, Rules, FuzzySet, Controller, Defuzzifier,
+                       Testbenches.FLCTestbench
 
   -- other-modules:       
   

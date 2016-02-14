@@ -24,6 +24,31 @@ git clone https://github.com/aznashwan/cluzzy
 cd cluzzy && cabal build
 ```
 
+All configurations for the FLC can be edited from the `config` Map
+[here](https://github.com/aznashwan/cluzzy/blob/master/Cluzzy/Config.hs#L29).
+
+The main testbench of the FLC can be found
+[here](https://github.com/aznashwan/cluzzy/blob/master/Cluzzy/Testbenches/FLCTestbench.hs),
+and can be run by issuing the following commands:
+
+```
+$ clash --interactive /path/to/FLCTestbench.hs 
+GHCi, version 7.10.3: http://www.haskell.org/ghc/  :? for help
+Prelude> sampleN (length testParams) $ expectedOutput (topEntity testInput)
+[False, False, ..., False]
+```
+
+You should [ideally] notice a list of `False`s. This indicates that all tests
+have passed. For more details, either re-run the command without the
+`expectedOutput` verifier or supply your own testInput for sampling as follows:
+
+```
+Prelude> sampleN (length testParams) $ topEntity testInput
+[NoOP, HeavySlowdown, ...
+Prelude> let yourInput = ...
+Prelude> sampleN (length yourInput) $ topEntity yourInput
+```
+
 ### Documentation.
 
 In the Docs folder, you may find all the associated PDFs generated from the
@@ -38,7 +63,7 @@ Details on writing both a combinational and sequential modeling of a component
 are given in the [fuzzifier module's
 documentation](https://github.com/aznashwan/cluzzy/blob/master/Docs/Fuzzifier.pdf),
 and details on writing a _testbench_ for a component are given in its [testbench
-module](https://github.com/aznashwan/cluzzy/blob/master/Docs/FuzzifierTestbench.pdf)
+module](https://github.com/aznashwan/cluzzy/blob/master/Docs/FuzzifierTestbench.pdf).
 
 The rest of the components and testbenches generally follow the exact
 same approach as the _fuzzifier_, and are thus more sparsely documented.
