@@ -13,8 +13,9 @@ test a number of the components of a fuzzy logic controller.
 
 ### Compiling and running.
 
-First off, please follow CλaSH's setup instructions off [their
-homepage](http://www.clash-lang.org/).
+First off, get a version of [GHC](https://www.haskell.org/ghc/) >= 7.0.
+Secondly, make sure you have CλaSH installed (setup instructions available on
+their homepage [here](http://www.clash-lang.org/#details)).
 
 Afterwards, clone and build the project as such:
 
